@@ -1,0 +1,22 @@
+* Open issues list
+** GitHub API request rate limit
+*** Only 5k/h for registrated users
+*** Pool of user accounts?                                      :Assesment:
+* GitHub API
+** http://developer.github.com/v3/repos/commits/
+** Calls chain to get commit information
+*** Get list of commits since last commit sha
+*** For each commit get update statistics
+* Model
+** Repository
+*** has : last readen commit's sha
+*** Commit statistics per author
+**** Lines added
+**** Lines removed
+** Author
+*** User name
+*** E-mail
+** Additional thoughts
+*** No need to store explicit commit information, aggregation is enough
+* Failover
+** Account is updated atomically, if update failed rollback to previous state
