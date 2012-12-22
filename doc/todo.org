@@ -20,3 +20,5 @@
 *** No need to store explicit commit information, aggregation is enough
 * Failover
 ** Account is updated atomically, if update failed rollback to previous state
+* Tasks
+** TODO Create ruby app
