@@ -1,4 +1,10 @@
 Yags::Application.routes.draw do
+  resources :authors
+
+
+  resources :repos
+
+
   # The priority is based upon order of creation:
   # first created -> highest priority.
 
