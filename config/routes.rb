@@ -1,4 +1,6 @@
 Yags::Application.routes.draw do
+  get "updater/update_stats"
+
   resources :authors
 
 

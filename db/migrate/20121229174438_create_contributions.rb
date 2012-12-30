@@ -4,6 +4,9 @@ class CreateContributions < ActiveRecord::Migration
       t.references :author
       t.references :repo
 
+      t.integer :lines_added
+      t.integer :lines_deleted
+
       t.timestamps
     end
     add_index :contributions, :author_id
