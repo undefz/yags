@@ -5,6 +5,7 @@ Yags::Application.routes.draw do
 
   resources :authors
   resources :repos
+  resources :contributions
 
   get "updater/update_stats"
   post "updater/update_stats"
