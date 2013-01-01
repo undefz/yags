@@ -27,8 +27,8 @@ class UpdaterController < ApplicationController
       added = detailed_commit.stats.additions
       deleted = detailed_commit.stats.deletions
 
-      gh_authors[:author][:added] += added
-      gh_authors[:author][:deleted] += deleted
+      gh_authors[author][:added] += added
+      gh_authors[author][:deleted] += deleted
     end
 
     logger.info "#{gh_authors.to_json}"
