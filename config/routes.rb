@@ -1,4 +1,6 @@
 Yags::Application.routes.draw do
+  get "repo_stats/show"
+
   get "main_screen/show"
 
   resources :authors
