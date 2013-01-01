@@ -1,11 +1,11 @@
 Yags::Application.routes.draw do
-  get "updater/update_stats"
+  get "main_screen/show"
 
   resources :authors
-
-
   resources :repos
 
+  get "updater/update_stats"
+  post "updater/update_stats"
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

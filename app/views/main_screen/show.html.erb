@@ -1,0 +1,8 @@
+<%= form_tag("/repo_stats", method: 'get') do %>
+<h1>MainScreen#show</h1>
+<p>Find me in app/views/main_screen/show.html.erb</p>
+
+<%= label_tag(:q, "Open repository") %>
+<%= text_field_tag(:q) %>
+<%= submit_tag("Open") %>
+<% end %>

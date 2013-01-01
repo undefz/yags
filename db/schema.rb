@@ -22,8 +22,10 @@ ActiveRecord::Schema.define(:version => 20121229174438) do
   create_table "contributions", :force => true do |t|
     t.integer  "author_id"
     t.integer  "repo_id"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+    t.integer  "lines_added"
+    t.integer  "lines_deleted"
+    t.datetime "created_at",    :null => false
+    t.datetime "updated_at",    :null => false
   end
 
   add_index "contributions", ["author_id"], :name => "index_contributions_on_author_id"

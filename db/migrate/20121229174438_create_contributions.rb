@@ -1,8 +1,8 @@
 class CreateContributions < ActiveRecord::Migration
   def change
     create_table :contributions do |t|
-      t.references :author
-      t.references :repo
+      t.belongs_to :author
+      t.belongs_to :repo
 
       t.integer :lines_added
       t.integer :lines_deleted
