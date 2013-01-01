@@ -9,6 +9,7 @@ Yags::Application.routes.draw do
   get "updater/update_stats"
   post "updater/update_stats"
 
+  root to: 'main_screen#show', as: 'main'
   # The priority is based upon order of creation:
   # first created -> highest priority.
 
