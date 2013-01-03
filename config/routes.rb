@@ -4,11 +4,14 @@ Yags::Application.routes.draw do
   get "main_screen/show"
 
   resources :authors
-  resources :repos
+  resources :repos do
+    member do
+      get 'update_stats'
+    end
+  end
   resources :contributions
 
-  get "updater/update_stats"
-  post "updater/update_stats"
+  #match 'repos/:id/update_stats' => 'repo#update_stats'
 
   root to: 'main_screen#show', as: 'main'
   # The priority is based upon order of creation:
