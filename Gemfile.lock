@@ -31,6 +31,11 @@ GEM
     arel (3.0.2)
     builder (3.0.4)
     commonjs (0.2.6)
+    delayed_job (3.0.4)
+      activesupport (~> 3.0)
+    delayed_job_active_record (0.3.3)
+      activerecord (>= 2.1.0, < 4)
+      delayed_job (~> 3.0)
     erubis (2.7.0)
     execjs (1.4.0)
       multi_json (~> 1.0)
@@ -125,6 +130,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  delayed_job_active_record
   execjs
   github_api
   jquery-rails

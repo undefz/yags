@@ -26,6 +26,7 @@ gem 'jquery-rails'
 
 gem 'github_api'
 gem 'rails_config'
+gem 'delayed_job_active_record'
 
 # To use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'
