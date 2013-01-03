@@ -4,6 +4,7 @@ class RepoStatsController < ApplicationController
     @repo = Repo.where(name: repo_name).first
     if @repo.nil?
       @repo = Repo.create(name: repo_name)
+      @repo.delay.update_stats
     end
     logger.info("#{@repo.to_json}")
     @top_add_contribs = Contribution.where(repo_id: @repo.id).order('lines_added').reverse_order.includes(:author).limit(10)
