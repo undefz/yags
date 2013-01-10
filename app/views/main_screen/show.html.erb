@@ -25,15 +25,11 @@
         <tr>
           <th>Repository name</th>
         </tr>
+        <% @repos.each do |repo| %>
         <tr>
-          <td>First repo</td>
+          <td><%= link_to repo.name, repo_stats_show_path(repo_name: repo.name) %></td>
         </tr>
-        <tr>
-          <td>Second repo</td>
-        </tr>
-        <tr>
-          <td>Third repo</td>
-        </tr>
+        <% end %>
       </table>
     </div>
   </div>
