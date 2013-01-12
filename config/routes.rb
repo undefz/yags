@@ -14,6 +14,8 @@ Yags::Application.routes.draw do
   #match 'repos/:id/update_stats' => 'repo#update_stats'
 
   root to: 'main_screen#show', as: 'main'
+
+  match "/delayed_job" => DelayedJobWeb, :anchor => false
   # The priority is based upon order of creation:
   # first created -> highest priority.
 
