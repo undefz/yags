@@ -28,8 +28,8 @@ gem 'github_api'
 gem 'rails_config'
 gem 'delayed_job_active_record'
 gem 'delayed_job_web'
-gem 'em-http-request'
 gem 'daemons'
+gem 'typhoeus'
 
 # To use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'

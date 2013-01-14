@@ -3,68 +3,88 @@ class Repo < ActiveRecord::Base
   attr_accessible :last_commit, :name
 
   def update_stats
-    repo = self
-    logger.info "Starting update of repo #{repo.name}"
+    logger.info "Starting update of repo #{self.name}"
 
     user = Settings.github.user
     password = Settings.github.password
 
-    github = Github.new login: user, password: password
-    gh_user, gh_repo = repo.name.split '/'
+    gh_user, gh_repo = self.name.split '/'
 
-    commit_sha = nil
-    while true 
-      if repo.last_commit.nil? or repo.last_commit.empty?
-        commits = github.repos.commits.all gh_user, gh_repo
-      else
-        commits = github.repos.commits.list gh_user, gh_repo, sha: repo.last_commit
-        #this commit was already indexed
-        commits.delete_at(0)
+    hydra = Typhoeus::Hydra.hydra
+    next_page = create_api_url(gh_user, gh_repo)
+
+    first_commit = nil
+    e_tag = nil
+    update_completed = false
+    while not (update_completed or next_page.nil?)
+      r = Typhoeus.get next_page, followlocation: true, userpwd: "#{user}:#{password}"
+      commits = JSON.parse r.body
+
+      logger.info("Reading portion of #{commits.count} commits")
+
+      requests = []
+      commits.each do |commit|
+        commit_sha = commit['sha']
+        if first_commit.nil?
+          first_commit = commit_sha
+          e_tag = r.headers[:ETag]
+        end
+        if commit_sha == last_commit
+          update_completed = true
+          break
+        else
+          request = Typhoeus::Request.new commit['url'], followlocation: true, userpwd: "#{user}:#{password}";
+          requests << request;
+          hydra.queue(request)
+        end        
       end
-      
+
+      hydra.run
 
       gh_authors = Hash.new{|h,k| h[k] = Hash.new(0)}
-      logger.info("Reading portion of #{commits.count} commits")
-      commits.each do |commit|
-        commit_sha = commit.sha
-        detailed_commit = github.repos.commits.get gh_user, gh_repo, commit_sha
+      requests.each do |request|
+        commit = JSON.parse request.response.body
 
-        author = detailed_commit.commit.committer.name
-        
-        added = detailed_commit.stats.additions
-        deleted = detailed_commit.stats.deletions
+        unless commit['author'].nil?
+          added = commit['stats']['additions']
+          deleted = commit['stats']['deletions']
+          author = commit['author']['login']
 
-        gh_authors[author][:added] += added
-        gh_authors[author][:deleted] += deleted
+          gh_authors[author][:added] += added
+          gh_authors[author][:deleted] += deleted
+        end      
       end
 
       logger.info "#{gh_authors.to_json}"
 
-      if commit_sha
-        repo.last_commit = commit_sha
-        repo.save
-      end
-
       gh_authors.each do |author_name, stats|
-        author = Author.where(nickname: author_name).first
-        unless author
-          author = Author.create nickname: author_name
-        end
+        author = Author.find_or_create_by_nickname(author_name)
 
-        contribution = Contribution.where(repo_id: repo.id, author_id: author.id).first
-        contribution ||= Contribution.create repo_id: repo.id, author_id: author.id
+        contribution = Contribution.where(repo_id: self.id, author_id: author.id).first
+        contribution ||= Contribution.create repo_id: self.id, author_id: author.id
         
         contribution.lines_added = stats[:added] + (contribution.lines_added || 0)
         contribution.lines_deleted = stats[:deleted] + (contribution.lines_deleted || 0)
         contribution.save
       end
 
-      if commit_sha.nil? then
-        break
-      end
+      next_page = create_next_page_url r.headers[:Link]
     end
 
-    logger.info "Finishing update of repo #{repo.name}"
+    self.last_commit = first_commit
+    self.save
+    logger.info "Finishing update of self #{self.name}"
 
+  end
+
+  private
+  def create_api_url(repo_author, repo_name)
+    url = "https://api.github.com/repos/#{repo_author}/#{repo_name}/commits?per_page=100"
+  end
+
+  def create_next_page_url(link)
+    unless link.nil?
+      link.match(/<(.*)>;.rel="next"/i).captures[0]
+    end
   end
 end
