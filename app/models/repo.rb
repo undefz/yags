@@ -16,9 +16,11 @@ class Repo < ActiveRecord::Base
     first_commit = nil
     e_tag = nil
     update_completed = false
+    
     while not (update_completed or next_page.nil?)
       r = Typhoeus.get next_page, followlocation: true, userpwd: "#{user}:#{password}"
       commits = JSON.parse r.body
+      e_tag = r.headers[:ETag]
 
       logger.info("Reading portion of #{commits.count} commits")
 
@@ -26,10 +28,9 @@ class Repo < ActiveRecord::Base
       commits.each do |commit|
         commit_sha = commit['sha']
         if first_commit.nil?
-          first_commit = commit_sha
-          e_tag = r.headers[:ETag]
+          first_commit = commit_sha          
         end
-        if commit_sha == last_commit
+        if commit_sha == self.last_commit
           update_completed = true
           break
         else
@@ -57,16 +58,7 @@ class Repo < ActiveRecord::Base
 
       logger.info "#{gh_authors.to_json}"
 
-      gh_authors.each do |author_name, stats|
-        author = Author.find_or_create_by_nickname(author_name)
-
-        contribution = Contribution.where(repo_id: self.id, author_id: author.id).first
-        contribution ||= Contribution.create repo_id: self.id, author_id: author.id
-        
-        contribution.lines_added = stats[:added] + (contribution.lines_added || 0)
-        contribution.lines_deleted = stats[:deleted] + (contribution.lines_deleted || 0)
-        contribution.save
-      end
+      patch_contribution(gh_authors)
 
       next_page = create_next_page_url r.headers[:Link]
     end
@@ -78,13 +70,28 @@ class Repo < ActiveRecord::Base
   end
 
   private
-  def create_api_url(repo_author, repo_name)
+  def create_api_url(repo_author, repo_name, sha=nil)
     url = "https://api.github.com/repos/#{repo_author}/#{repo_name}/commits?per_page=100"
   end
 
   def create_next_page_url(link)
-    unless link.nil?
-      link.match(/<(.*)>;.rel="next"/i).captures[0]
+    if not link.nil?
+      if matches = link.match(/<(\S*)>;\s*rel="next"/i)
+        matches.captures.first
+      end
+    end
+  end
+
+  def patch_contribution(gh_authors)
+    gh_authors.each do |author_name, stats|
+      author = Author.find_or_create_by_nickname(author_name)
+
+      contribution = Contribution.where(repo_id: self.id, author_id: author.id).first
+      contribution ||= Contribution.create repo_id: self.id, author_id: author.id
+      
+      contribution.lines_added = stats[:added] + (contribution.lines_added || 0)
+      contribution.lines_deleted = stats[:deleted] + (contribution.lines_deleted || 0)
+      contribution.save
     end
   end
 end
