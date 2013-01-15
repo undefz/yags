@@ -14,7 +14,7 @@
       </fieldset>
     <% end %>
 
-    <% if alert %>
+    <% if params[:alert] %>
     <div class="alert alert-error">
       <p>Sorry, your input does not look like valid Github repository URL</p>
     </div>
@@ -27,7 +27,7 @@
         </tr>
         <% @repos.each do |repo| %>
         <tr>
-          <td><%= link_to repo.name, repo_stats_show_path(repo_name: repo.name) %></td>
+          <td><%= link_to repo.name, repo_stats_show_path(repo_id: repo.id) %></td>
         </tr>
         <% end %>
       </table>
