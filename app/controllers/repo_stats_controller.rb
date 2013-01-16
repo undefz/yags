@@ -3,7 +3,10 @@ class RepoStatsController < ApplicationController
     @repo =  nil
 
     if params[:repo_id]
-      @repo = Repo.find(params[:repo_id])
+      begin  
+        @repo = Repo.find(params[:repo_id])
+      rescue ActiveRecord::RecordNotFound
+      end
     elsif params[:repo_name]
       input_repo_name = params[:repo_name]
       validation_regexp = 'https://github.com/?([a-zA-Z0-9\-\._]+)/([a-zA-Z0-9\-\._]+)/?'
@@ -13,8 +16,7 @@ class RepoStatsController < ApplicationController
         repo_name = matches.captures.join('/')
         @repo = Repo.where(name: repo_name).first
         @repo_just_created = @repo.nil?
-        if @repo.nil? and check_repo_existance(repo_name)
-          check_repo_existance(repo_name)
+        if @repo.nil? and GitHub.check_repo_existance(repo_name)
           @repo = Repo.create(name: repo_name)
           @repo.delay.update_stats
         end
@@ -31,13 +33,5 @@ class RepoStatsController < ApplicationController
     else
       redirect_to main_screen_show_path alert: true
     end
-  end
-
-  private
-  def check_repo_existance(repo_name)
-    url = "https://api.github.com/repos/#{repo_name}"
-    user, password = get_github_credentials()
-    r = Typhoeus.get url, followlocation: true, userpwd: "#{user}:#{password}"; 
-    r.success?
   end
 end
