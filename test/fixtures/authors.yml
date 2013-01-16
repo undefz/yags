@@ -1,7 +1,31 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
 
-one:
-  nickname: MyString
+a1:
+  id: 1
+  nickname: a1
 
-two:
-  nickname: MyString
+a2:
+  id: 2
+  nickname: a2
+
+a3:
+  id: 3
+  nickname: a3
+
+a4:
+  id: 4
+  nickname: a4
+
+a5:
+  id: 5
+  nickname: a5
+
+a6:
+  id: 6
+  nickname: a6
+
+a7:
+  id: 7
+  nickname: a7
+
+

@@ -1,9 +1,43 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
 
-one:
-  author: 
-  repo: 
+a1r1:
+  author_id: 1
+  repo_id: 1
+  lines_added: 1
+  lines_deleted: 9
 
-two:
-  author: 
-  repo: 
+a2r1:
+  author_id: 2
+  repo_id: 1
+  lines_added: 2
+  lines_deleted: 8
+
+a3r1:
+  author_id: 3
+  repo_id: 1
+  lines_added: 3
+  lines_deleted: 7
+
+a4r1:
+  author_id: 4
+  repo_id: 1
+  lines_added: 4
+  lines_deleted: 6
+
+a5r1:
+  author_id: 5
+  repo_id: 1
+  lines_added: 5
+  lines_deleted: 5
+
+a6r1:
+  author_id: 6
+  repo_id: 1
+  lines_added: 6
+  lines_deleted: 4
+
+a7r1:
+  author_id: 7
+  repo_id: 1
+  lines_added: 7
+  lines_deleted: 3
