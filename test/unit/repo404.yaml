@@ -1,0 +1,36 @@
+--- &21787600 !ruby/object:Typhoeus::Response
+options:
+  :return_code: :ok
+  :response_headers: ! "HTTP/1.1 404 Not Found\r\nServer: GitHub.com\r\nDate: Wed,
+    16 Jan 2013 17:38:31 GMT\r\nContent-Type: application/json; charset=utf-8\r\nConnection:
+    keep-alive\r\nStatus: 404 Not Found\r\nContent-Length: 23\r\nX-GitHub-Media-Type:
+    github.beta\r\nX-RateLimit-Limit: 5000\r\nX-Content-Type-Options: nosniff\r\nX-RateLimit-Remaining:
+    4998\r\nCache-Control: \r\n\r\n"
+  :response_body: ! '{"message":"Not Found"}'
+  :httpauth_avail: 0
+  :total_time: 0.7707040000000001
+  :starttransfer_time: 0.770452
+  :appconnect_time: 0.591862
+  :pretransfer_time: 0.592034
+  :connect_time: 0.23536500000000005
+  :namelookup_time: 0.07517
+  :effective_url: !binary |-
+    aHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy9qdWdneS9lbWJlcl9pbnNw
+    ZWN0b3Ix
+  :primary_ip: !binary |-
+    MjA3Ljk3LjIyNy4yNDM=
+  :response_code: 404
+  :redirect_count: 0
+request: !ruby/object:Typhoeus::Request
+  base_url: https://api.github.com/repos/juggy/ember_inspector1
+  original_options:
+    :followlocation: true
+    :method: :get
+  options:
+    :followlocation: true
+    :method: :get
+    :headers:
+      User-Agent: Typhoeus - https://github.com/typhoeus/typhoeus
+  response: *21787600
+  on_complete: []
+  on_failure: []
