@@ -1,6 +1,10 @@
 class Repo < ActiveRecord::Base
   has_many :contributions
   attr_accessible :last_commit, :name
+  validates :name, presence: true
+  validates :last_commit, allow_blank: true, format: {
+    with: %r{[0-9a-f]{40}}i
+  }
 
   def update_stats
     Repo.transaction do
@@ -36,7 +40,6 @@ class Repo < ActiveRecord::Base
   end
 
   private
-
 
   def patch_contribution(contributions_patch)
     contributions_patch.each do |author_name, stats|
