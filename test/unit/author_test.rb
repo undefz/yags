@@ -9,4 +9,9 @@ class AuthorTest < ActiveSupport::TestCase
     assert author.invalid?
     assert author.errors[:nickname].any?
   end
+
+  test "normal author" do
+    author = Author.new(nickname: 'Andy')
+    assert author.valid?
+  end
 end
