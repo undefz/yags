@@ -3,34 +3,36 @@ class Repo < ActiveRecord::Base
   attr_accessible :last_commit, :name
 
   def update_stats
-    logger.info "Starting update of repo #{self.name}"
+    Repo.transaction do
+      logger.info "Starting update of repo #{self.name}"
 
-    gh_user, gh_repo = self.name.split '/'
+      gh_user, gh_repo = self.name.split '/'
 
-    e_tag = nil
-   
-    contributions_patch = Hash.new{|h,k| h[k] = Hash.new(0)}
+      e_tag = nil
+     
+      contributions_patch = Hash.new{|h,k| h[k] = Hash.new(0)}
 
-    update_patch = Proc.new do |response|
-      commit = JSON.parse response.body
+      update_patch = Proc.new do |response|
+        commit = JSON.parse response.body
 
-      unless commit['author'].nil?
-        added = commit['stats']['additions']
-        deleted = commit['stats']['deletions']
-        author = commit['author']['login']
+        unless commit['author'].nil?
+          added = commit['stats']['additions']
+          deleted = commit['stats']['deletions']
+          author = commit['author']['login']
 
-        contributions_patch[author][:added] += added
-        contributions_patch[author][:deleted] += deleted
-      end
-    end    
+          contributions_patch[author][:added] += added
+          contributions_patch[author][:deleted] += deleted
+        end
+      end    
 
-    self.last_commit = GitHub.iterate_over_commits gh_user, gh_repo, self.last_commit, update_patch
+      self.last_commit = GitHub.iterate_over_commits gh_user, gh_repo, self.last_commit, update_patch
 
-    logger.info "#{contributions_patch.to_json}"
-    patch_contribution(contributions_patch)
+      logger.info "#{contributions_patch.to_json}"
+      patch_contribution(contributions_patch)
 
-    self.save
-    logger.info "Finishing update of self #{self.name}"
+      self.save
+      logger.info "Finishing update of self #{self.name}"
+    end
   end
 
   private
