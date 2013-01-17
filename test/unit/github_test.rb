@@ -16,14 +16,48 @@ class RepoTest < ActiveSupport::TestCase
   end
 
   test "commit iteration 404" do
+    passed = false
+
+
+    begin
+      response = YAML.load File.open('test/unit/repo404.yaml')
+      Typhoeus.stub('https://api.github.com/repos/juggy/ember_inspector/commits?per_page=100').and_return(response)
+      commit_lambda = Proc.new {}
+      GitHub.iterate_over_commits('juggy', 'ember_inspector', nil, nil, commit_lambda)
+    rescue Exceptions::NotExistingRepoException
+      passed = true
+    end
+    
+    assert passed
   end
 
   test "commit iteration rate limit" do
+    responses = YAML.load File.open('test/unit/repo_emul.yaml')
+
+    responses.each do |response|
+      Typhoeus.stub(response.options[:request].url).and_return(response)
+    end
+
+    rate_response = YAML.load File.open('test/unit/rate0.yaml')
+    Typhoeus.stub('https://api.github.com/repos/juggy/ember_inspector/commits/9e0222c05c1fcd3deddcf1b8f2fc31a7ccda2325').and_return(rate_response)
+
+    passed = false
+
+
+    begin
+      response = YAML.load File.open('test/unit/repo404.yaml')
+      Typhoeus.stub('https://api.github.com/repos/juggy/ember_inspector/commits?per_page=100').and_return(response)
+      commit_lambda = Proc.new {}
+      GitHub.iterate_over_commits('juggy', 'ember_inspector', nil, nil, commit_lambda)
+    rescue Exceptions::RateLimitExhausedException
+      passed = true
+    end
+    
+    assert passed
   end
 
 
   test "commit iteration all" do
-    YAML::ENGINE.yamler = 'syck'
     responses = YAML.load File.open('test/unit/repo_emul.yaml')
     responses.each do |response|
       Typhoeus.stub(response.options[:request].url).and_return(response)
@@ -46,13 +80,33 @@ class RepoTest < ActiveSupport::TestCase
       received_commits << commit['sha']
     end
 
-    GitHub.iterate_over_commits('juggy', 'ember_inspector', nil, commit_lambda)
+    GitHub.iterate_over_commits('juggy', 'ember_inspector', nil, nil, commit_lambda)
 
     Rails.logger.info "Got commits #{received_commits}"
     assert valid_commits.sort == received_commits.sort
   end
 
   test "commit iteration since sha" do
+    responses = YAML.load File.open('test/unit/repo_emul.yaml')
+    responses.each do |response|
+      Typhoeus.stub(response.options[:request].url).and_return(response)
+    end
+
+    valid_commits = [
+      '9db80495f657bdce8c3af34d8c1266a2659d5061',
+      '93b55be11847179fbdf1e4e70a13e01f27f770f1',
+      'a20bdb2ad3c11cb13bd87dafb75619ac9cb92871']
+
+    received_commits = []
+    commit_lambda = Proc.new do |response|
+      commit = JSON.parse response.body
+      received_commits << commit['sha']
+    end
+
+    GitHub.iterate_over_commits('juggy', 'ember_inspector', '516a4e522a8e58a49d5f2e9baa5273b1275a9eac', commit_lambda)
+
+    Rails.logger.info "Got commits #{received_commits}"
+    assert valid_commits.sort == received_commits.sort
   end
 
 end

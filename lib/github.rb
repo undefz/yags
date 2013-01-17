@@ -3,23 +3,44 @@ class GitHub
     url = "https://api.github.com/repos/#{repo_name}"
     user, password = get_credentials()
     r = Typhoeus.get url, followlocation: true, userpwd: "#{user}:#{password}"; 
-    r.success?
+    #There is probability rate limit reached, in that case repo will be unvalidated during update
+    return r.code != 404
   end
 
-  def self.iterate_over_commits(gh_user, gh_repo, last_sha, commit_lambda)
+  def self.iterate_over_commits(gh_user, gh_repo, last_sha, etag, commit_lambda)
     user, password = get_credentials()
 
     hydra = Typhoeus::Hydra.hydra
     next_page = create_api_url(gh_user, gh_repo)
 
     first_commit = nil
-    e_tag = nil
+    
     update_completed = false
 
     while not (update_completed or next_page.nil?)
-      r = Typhoeus.get next_page, followlocation: true, userpwd: "#{user}:#{password}"
-      commits = JSON.parse r.body
-      e_tag = r.headers[:ETag]
+      commit_request = Typhoeus::Request.new next_page, followlocation: true, userpwd: "#{user}:#{password}"
+      if first_commit.nil? and not etag.nil?
+        commit_request.options[:headers]['If-None-Match']=etag
+      end
+      commit_request.run
+
+      commit_response = commit_request.response
+
+      unless commit_response.success?
+        if commit_response.code == 404
+          raise Exceptions::NotExistingRepoException
+        elsif commit_response.code == 403
+          raise Exceptions::RateLimitExhausedException
+        elsif commit_response.code == 304
+          #Etag worked, no changes
+          return last_sha, etag
+        else
+          raise Exceptions::GitHubProblemException
+        end
+      end
+
+      commits = JSON.parse commit_response.body
+      
 
       Rails.logger.debug("Reading portion of #{commits.count} commits")
 
@@ -27,7 +48,8 @@ class GitHub
         Rails.logger.info("Commit class is #{commit.class}")
         commit_sha = commit['sha']
         if first_commit.nil?
-          first_commit = commit_sha          
+          first_commit = commit_sha
+          etag = commit_response.headers[:ETag]
         end
         if commit_sha == last_sha
           update_completed = true
@@ -35,6 +57,13 @@ class GitHub
         else
           request = Typhoeus::Request.new commit['url'], followlocation: true, userpwd: "#{user}:#{password}";
           request.on_complete do |response|
+            unless response.success?
+              if response.code == 403
+                raise Exceptions::RateLimitExhausedException
+              else
+                raise Exceptions::GitHubProblemException
+              end
+            end
             commit_lambda.call(response)
           end
 
@@ -45,10 +74,11 @@ class GitHub
 
       hydra.run
 
-      next_page = create_next_page_url r.headers[:Link]
+      next_page = create_next_page_url commit_response.headers['Link']
+      
     end
 
-    return first_commit
+    return first_commit, etag
   end
 
   private
