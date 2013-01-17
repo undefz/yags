@@ -6,7 +6,7 @@
         %small Yet Another Github statistics
     = form_tag(repo_stats_show_path, method: 'get', class: 'form-inline') do
     %fieldset
-      = text_field_tag 'repo_name', '', placeholder:'https://github.com/user/project'
+      = text_field_tag 'repo_name', '', placeholder:'https://github.com/user/project', class: 'span5'
       = submit_tag "Open", class:"btn"
     - if params[:alert]
       .alert.alert-error
