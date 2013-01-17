@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130103153556) do
+ActiveRecord::Schema.define(:version => 20130117012603) do
 
   create_table "authors", :force => true do |t|
     t.string   "nickname"
@@ -52,6 +52,7 @@ ActiveRecord::Schema.define(:version => 20130103153556) do
     t.string   "last_commit"
     t.datetime "created_at",  :null => false
     t.datetime "updated_at",  :null => false
+    t.string   "etag"
   end
 
 end
