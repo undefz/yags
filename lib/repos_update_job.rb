@@ -1,4 +1,4 @@
-class ReposUpdateJob < Struct.new()
+class ReposUpdateJob
   def perform
     Repo.find_each do |repo|
       repo.delay.update_stats

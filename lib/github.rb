@@ -100,7 +100,7 @@ class GitHub
 
   def self.create_next_page_url(link)
     if not link.nil?
-      if matches = link.match /<(\S*)>;\s*rel="next"/i
+      if matches = link.match(/<(\S*)>;\s*rel="next"/i)
         matches.captures.first
       end
     end
