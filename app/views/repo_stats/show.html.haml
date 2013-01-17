@@ -1,0 +1,22 @@
+.container-narrow
+  .page-header
+    %h1
+      Stats for #{@repo.name}
+  - if @repo.last_commit.nil?
+    %h2 Looks like you're the first to ask for this repo statistics.
+    %h2 They will be collected within one hour
+  - else
+    .span4
+      %h2 Authors by additions
+      %table.table.table-striped.table-bordered
+        - @top_add_contribs.each do |contrib|
+          %tr
+            %td= contrib.author.nickname
+            %td= contrib.lines_added
+    .span4
+      %h2 Authors by deletions
+      %table.table.table-striped.table-bordered
+        - @top_delete_contribs.each do |contrib|
+          %tr
+            %td= contrib.author.nickname
+            %td= contrib.lines_deleted

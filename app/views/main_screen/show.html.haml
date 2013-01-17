@@ -1,0 +1,20 @@
+.container-narrow
+  .span8.pagination-centered
+    .page-header
+      %h1
+        YAGS
+        %small Yet Another Github statistics
+    = form_tag(repo_stats_show_path, method: 'get', class: 'form-inline') do
+    %fieldset
+      = text_field_tag 'repo_name', '', placeholder:'https://github.com/user/project'
+      = submit_tag "Open", class:"btn"
+    - if params[:alert]
+      .alert.alert-error
+        %p Sorry, your input does not look like valid Github repository URL
+    .span6.center-table
+      %table.table.table-striped.table-bordered
+        %tr
+          %th Repository name
+        - @repos.each do |repo|
+          %tr
+            %td= link_to repo.name, repo_stats_show_path(repo_id: repo.id)
