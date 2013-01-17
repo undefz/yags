@@ -1,6 +1,6 @@
 class Repo < ActiveRecord::Base
   has_many :contributions
-  attr_accessible :last_commit, :name
+  attr_accessible :last_commit, :name, :etag
   validates :name, presence: true
   validates :last_commit, allow_blank: true, format: {
     with: %r{[0-9a-f]{40}}i
@@ -29,7 +29,7 @@ class Repo < ActiveRecord::Base
         end
       end    
 
-      self.last_commit = GitHub.iterate_over_commits gh_user, gh_repo, self.last_commit, update_patch
+      self.last_commit, self.etag = GitHub.iterate_over_commits gh_user, gh_repo, self.last_commit, self.etag, update_patch
 
       logger.info "#{contributions_patch.to_json}"
       patch_contribution(contributions_patch)

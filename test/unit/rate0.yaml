@@ -1,0 +1,57 @@
+--- &id001 !ruby/object:Typhoeus::Response 
+headers: !map:Typhoeus::Response::Header 
+  Server: GitHub.com
+  Date: Wed, 16 Jan 2013 22:50:35 GMT
+  Content-Type: application/json; charset=utf-8
+  Connection: close
+  Status: 403 Forbidden
+  X-Content-Type-Options: nosniff
+  X-GitHub-Media-Type: github.beta
+  Cache-Control: ""
+  Content-Length: "56"
+  X-RateLimit-Remaining: "0"
+  X-RateLimit-Limit: "60"
+options: 
+  :return_code: :ok
+  :response_headers: |
+    HTTP/1.1 403 Forbidden
+    Server: GitHub.com
+    Date: Wed, 16 Jan 2013 22:50:35 GMT
+    Content-Type: application/json; charset=utf-8
+    Connection: close
+    Status: 403 Forbidden
+    X-Content-Type-Options: nosniff
+    X-GitHub-Media-Type: github.beta
+    Cache-Control: 
+    Content-Length: 56
+    X-RateLimit-Remaining: 0
+    X-RateLimit-Limit: 60
+    
+
+  :response_body: "{\"message\":\"API Rate Limit Exceeded for 37.112.148.131\"}"
+  :httpauth_avail: 0
+  :total_time: 0.166432
+  :starttransfer_time: 0.166198
+  :appconnect_time: 4.8e-05
+  :pretransfer_time: 0.000184
+  :connect_time: 4.8e-05
+  :namelookup_time: 4.7e-05
+  :effective_url: https://api.github.com/repos/juggy/ember_inspector/commits?per_page=2
+  :primary_ip: 207.97.227.243
+  :response_code: 403
+  :redirect_count: 0
+request: !ruby/object:Typhoeus::Request 
+  base_url: https://api.github.com/repos/juggy/ember_inspector/commits?per_page=2
+  on_complete: []
+
+  on_failure: []
+
+  options: 
+    :followlocation: true
+    :method: :get
+    :headers: 
+      User-Agent: Typhoeus - https://github.com/typhoeus/typhoeus
+  original_options: 
+    :followlocation: true
+    :method: :get
+  response: *id001

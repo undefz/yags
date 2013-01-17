@@ -10,6 +10,10 @@
   <%= @repo.last_commit %>
 </p>
 
+<p>
+  <b>ETag:</b>
+  <%= @repo.etag %>
+</p>
 
 <%= link_to 'Edit', edit_repo_path(@repo) %> |
 <%= link_to 'Back', repos_path %>
