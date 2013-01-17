@@ -13,7 +13,7 @@ gem 'therubyracer'
 # in production environments by default.
 group :assets do
 #  gem 'sass-rails',   '~> 3.2.3'
-#  gem 'coffee-rails', '~> 3.2.1'
+  gem 'coffee-rails', '~> 3.2.1'
   gem 'less-rails-bootstrap'
 
   # See https://github.com/sstephenson/execjs#readme for more supported runtimes
@@ -30,6 +30,7 @@ gem 'delayed_job_active_record'
 gem 'delayed_job_web'
 gem 'daemons'
 gem 'typhoeus'
+gem 'pg'
 
 # To use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'
