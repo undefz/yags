@@ -31,8 +31,8 @@ class Repo < ActiveRecord::Base
 
       self.last_commit, self.etag = GitHub.iterate_over_commits gh_user, gh_repo, self.last_commit, self.etag, update_patch
 
-      logger.info "#{contributions_patch.to_json}"
-      patch_contribution(contributions_patch)
+      logger.debug "#{contributions_patch.to_json}"
+      patch_contribution contributions_patch
 
       self.save
       logger.info "Finishing update of self #{self.name}"

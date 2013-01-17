@@ -8,18 +8,18 @@ class GitHub
   end
 
   def self.iterate_over_commits(gh_user, gh_repo, last_sha, etag, commit_lambda)
-    Rails.logging.info("Starting updating repository #{gh_user}/#{gh_repo}")
+    Rails.logging.info "Starting reading commits for #{gh_user}/#{gh_repo}"
     user, password = get_credentials()
 
     hydra = Typhoeus::Hydra.hydra
-    next_page = create_api_url(gh_user, gh_repo)
+    next_page = create_api_url gh_user, gh_repo
 
     first_commit = nil
     
     update_completed = false
 
     while not (update_completed or next_page.nil?)
-      Rails.logging.debug("Asking github api for url #{next_page}")
+      Rails.logging.debug "Asking github api for url #{next_page}"
       commit_request = Typhoeus::Request.new next_page, followlocation: true, userpwd: "#{user}:#{password}"
       if first_commit.nil? and not etag.nil?
         commit_request.options[:headers]['If-None-Match']=etag
@@ -30,17 +30,17 @@ class GitHub
 
       unless commit_response.success?
         if commit_response.code == 404
-          Rails.logging.error("Repository #{gh_user}/#{gh_repo} doesn't exist!")
+          Rails.logging.error "Repository #{gh_user}/#{gh_repo} doesn't exist!"
           raise Exceptions::NotExistingRepoException
         elsif commit_response.code == 403
-          Rails.logging.info("Rate limit reached, aborting execution")
+          Rails.logging.info "Rate limit reached, aborting execution"
           raise Exceptions::RateLimitExhausedException
         elsif commit_response.code == 304
           #Etag worked, no changes
-          Rails.logging.debug("Etag valid response for repo #{gh_user}/#{gh_repo}, no changes")
+          Rails.logging.debug "Etag valid response for repo #{gh_user}/#{gh_repo}, no changes"
           return last_sha, etag
         else
-          Rails.logging.error("Unidentified response from github, aborting")
+          Rails.logging.error "Unidentified response from github, aborting"
           raise Exceptions::GitHubProblemException
         end
       end
@@ -48,7 +48,7 @@ class GitHub
       commits = JSON.parse commit_response.body
       
 
-      Rails.logger.debug("Reading portion of #{commits.count} commits")
+      Rails.logger.debug "Reading portion of #{commits.count} commits"
 
       commits.each do |commit|
         commit_sha = commit['sha']
@@ -64,18 +64,18 @@ class GitHub
           request.on_complete do |response|
             unless response.success?
               if response.code == 403
-                Rails.logging.info("Rate limit reached, aborting execution")
+                Rails.logging.info "Rate limit reached, aborting execution"
                 raise Exceptions::RateLimitExhausedException
               else
-                Rails.logging.error("Unidentified response from GitHub, aborting")
+                Rails.logging.error "Unidentified response from GitHub, aborting"
                 raise Exceptions::GitHubProblemException
               end
             end
-            commit_lambda.call(response)
+            commit_lambda.call response
           end
 
           
-          hydra.queue(request)
+          hydra.queue request
         end        
       end
 
@@ -85,7 +85,7 @@ class GitHub
       
     end
 
-    Rails.logging.info("Repository #{gh_user}/#{gh_repo} updated successfully")
+    Rails.logging.info "Repository #{gh_user}/#{gh_repo} updated successfully"
     return first_commit, etag
   end
 
@@ -100,7 +100,7 @@ class GitHub
 
   def self.create_next_page_url(link)
     if not link.nil?
-      if matches = link.match(/<(\S*)>;\s*rel="next"/i)
+      if matches = link.match /<(\S*)>;\s*rel="next"/i
         matches.captures.first
       end
     end
