@@ -35,18 +35,18 @@ class RepoTest < ActiveSupport::TestCase
     responses = YAML.load File.open('test/unit/repo_emul.yaml')
 
     responses.each do |response|
-      Typhoeus.stub(response.options[:request].url).and_return(response)
+      unless response.options[:request].url == 'https://api.github.com/repos/juggy/ember_inspector/commits/9e0222c05c1fcd3deddcf1b8f2fc31a7ccda2325'
+        Typhoeus.stub(response.options[:request].url).and_return(response)
+      else
+        rate_response = YAML.load File.open('test/unit/rate0.yaml')
+        Typhoeus.stub(response.options[:request].url).and_return(rate_response)
+      end
     end
-
-    rate_response = YAML.load File.open('test/unit/rate0.yaml')
-    Typhoeus.stub('https://api.github.com/repos/juggy/ember_inspector/commits/9e0222c05c1fcd3deddcf1b8f2fc31a7ccda2325').and_return(rate_response)
 
     passed = false
 
 
     begin
-      response = YAML.load File.open('test/unit/repo404.yaml')
-      Typhoeus.stub('https://api.github.com/repos/juggy/ember_inspector/commits?per_page=100').and_return(response)
       commit_lambda = Proc.new {}
       GitHub.iterate_over_commits('juggy', 'ember_inspector', nil, nil, commit_lambda)
     rescue Exceptions::RateLimitExhausedException
@@ -103,7 +103,7 @@ class RepoTest < ActiveSupport::TestCase
       received_commits << commit['sha']
     end
 
-    GitHub.iterate_over_commits('juggy', 'ember_inspector', '516a4e522a8e58a49d5f2e9baa5273b1275a9eac', commit_lambda)
+    GitHub.iterate_over_commits('juggy', 'ember_inspector', '516a4e522a8e58a49d5f2e9baa5273b1275a9eac', nil, commit_lambda)
 
     Rails.logger.info "Got commits #{received_commits}"
     assert valid_commits.sort == received_commits.sort

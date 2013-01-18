@@ -22,4 +22,32 @@ class RepoTest < ActiveSupport::TestCase
     assert repo.errors[:last_commit].any?
   end
 
+  test "update test" do
+    repo = Repo.new(name: 'juggy/ember_inspector')
+    repo.save
+
+    responses = YAML.load File.open('test/unit/repo_emul.yaml')
+    responses.each do |response|
+      Typhoeus.stub(response.options[:request].url).and_return(response)
+    end
+
+    repo.update_stats;
+    contributions = Contribution.where(repo_id: repo.id)
+    assert contributions.length == 3
+    contributions.each do |contribution|
+      if contribution.author.nickname == 'rapheld'
+        assert contribution.lines_added == 90
+        assert contribution.lines_deleted == 16
+      elsif contribution.author.nickname == 'pjmorse'
+        assert contribution.lines_added == 2
+        assert contribution.lines_deleted == 3
+      elsif contribution.author.nickname == 'juggy'
+        assert contribution.lines_added == 43
+        assert contribution.lines_deleted == 45
+      else
+        assert false
+      end
+    end
+  end
+
 end
