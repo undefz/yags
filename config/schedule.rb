@@ -21,6 +21,6 @@
 
 job_type :runner,  "cd :path && PATH=:path/../../ruby/bin:$PATH && script/rails runner -e :environment ':task' :output"
 
-every 5.minutes do
+every 30.minutes do
   runner "ReposUpdateJob.perform", output: 'log/cron.log'
 end
